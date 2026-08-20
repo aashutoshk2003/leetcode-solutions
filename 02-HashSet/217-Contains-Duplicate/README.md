@@ -18,18 +18,26 @@ Return `false` if every element appears only once.
 
 ## 💭 Approach
 
-I use a `HashSet` to keep track of the elements that have already been visited.
+I use a `HashSet` to store the elements that have already been visited.
 
 A `HashSet` stores only unique values.
 
-While traversing the array:
+Instead of separately using `contains()` and `add()`, I use the return value of the `add()` method.
 
-- Check whether the current value already exists in the `HashSet`.
-- If it exists, a duplicate has been found, so return `true`.
-- If it does not exist, add the current value to the `HashSet`.
-- Continue until the entire array is processed.
+The `HashSet.add()` method:
 
-If the complete array is traversed without finding an existing value in the set, return `false`.
+- Returns `true` if the value was successfully added because it did not already exist.
+- Returns `false` if the value already exists in the set.
+
+Therefore, for every element:
+
+```text
+if (!set.add(value))
+```
+
+means that the value is already present in the set, so a duplicate has been found.
+
+If `add()` returns `true`, the value is new and the traversal continues.
 
 ---
 
@@ -37,14 +45,12 @@ If the complete array is traversed without finding an existing value in the set,
 
 1. Create a `HashSet`.
 2. Traverse the array using a for-each loop.
-3. For each value:
-    - Check whether the value already exists in the set.
-4. If the value exists:
+3. Try to add the current value to the set.
+4. If `set.add(value)` returns `false`:
+    - The value already exists.
     - Return `true`.
-5. Otherwise:
-    - Add the value to the set.
-6. Continue until all elements are processed.
-7. If no duplicate is found, return `false`.
+5. If the value is successfully added, continue.
+6. If the entire array is processed without finding a duplicate, return `false`.
 
 ---
 
@@ -67,16 +73,28 @@ set = {}
 Current value:
 
 ```text
-1
+value = 1
 ```
 
-`1` does not exist in the set.
-
-Add it:
+Execute:
 
 ```text
-set = {1}
+set.add(1)
 ```
+
+Since `1` does not exist:
+
+```text
+add() → true
+```
+
+Set becomes:
+
+```text
+{1}
+```
+
+Continue.
 
 ---
 
@@ -85,16 +103,28 @@ set = {1}
 Current value:
 
 ```text
-2
+value = 2
 ```
 
-`2` does not exist in the set.
-
-Add it:
+Execute:
 
 ```text
-set = {1, 2}
+set.add(2)
 ```
+
+Since `2` does not exist:
+
+```text
+add() → true
+```
+
+Set becomes:
+
+```text
+{1, 2}
+```
+
+Continue.
 
 ---
 
@@ -103,16 +133,28 @@ set = {1, 2}
 Current value:
 
 ```text
-3
+value = 3
 ```
 
-`3` does not exist in the set.
-
-Add it:
+Execute:
 
 ```text
-set = {1, 2, 3}
+set.add(3)
 ```
+
+Since `3` does not exist:
+
+```text
+add() → true
+```
+
+Set becomes:
+
+```text
+{1, 2, 3}
+```
+
+Continue.
 
 ---
 
@@ -121,10 +163,34 @@ set = {1, 2, 3}
 Current value:
 
 ```text
-1
+value = 1
 ```
 
-`1` already exists in the set.
+Execute:
+
+```text
+set.add(1)
+```
+
+But `1` already exists.
+
+Therefore:
+
+```text
+add() → false
+```
+
+The condition:
+
+```java
+!set.add(value)
+```
+
+becomes:
+
+```text
+!false → true
+```
 
 Therefore:
 
@@ -148,16 +214,16 @@ Consider:
 nums = [1, 2, 3, 4]
 ```
 
-The set is updated as:
+Each value is successfully added:
 
 ```text
-{1}
-{1, 2}
-{1, 2, 3}
-{1, 2, 3, 4}
+1 → true
+2 → true
+3 → true
+4 → true
 ```
 
-No value appears again.
+No `add()` operation returns `false`.
 
 Therefore:
 
@@ -178,11 +244,9 @@ class Solution {
         Set<Integer> set = new HashSet<>();
 
         for (int value : nums) {
-            if (set.contains(value)) {
+            if (!set.add(value)) {
                 return true;
             }
-
-            set.add(value);
         }
 
         return false;
@@ -202,7 +266,7 @@ O(n)
 
 The array is traversed once.
 
-`HashSet` lookup and insertion take `O(1)` average time.
+`HashSet.add()` takes `O(1)` average time.
 
 Therefore, the overall time complexity is:
 
@@ -223,26 +287,38 @@ In the worst case, all elements are unique and the HashSet stores all `n` elemen
 ## 💡 Key Learning
 
 - A `HashSet` is useful when we only need to know whether a value has already appeared.
-- Unlike a `HashMap`, a `HashSet` stores only the values, not key-value pairs.
-- The main idea is:
+- `HashSet.add()` can directly tell us whether a value is new or already present.
+- `add()` returns:
+    - `true` → value was not present and was added.
+    - `false` → value was already present.
+- Therefore, we can combine the duplicate check and insertion into one operation.
+- This avoids writing:
 
-```text
-Have I seen this value before?
+```java
+if (set.contains(value)) {
+    return true;
+}
+
+set.add(value);
 ```
 
-- `contains()` checks whether the value already exists.
-- `add()` stores a new value.
-- We can return immediately when a duplicate is found, so we do not need to process the remaining elements.
+and instead use:
+
+```java
+if (!set.add(value)) {
+    return true;
+}
+```
 
 ---
 
 ## ⚠️ Important Points
 
 - `HashSet` stores only unique values.
-- We check `contains()` before `add()`.
-- If a value already exists, it means the array contains a duplicate.
-- If the entire array is processed without finding a duplicate, return `false`.
-- No index information is required for this problem, so `HashSet` is sufficient.
+- `add()` returns `false` when the value already exists.
+- The `!` operator converts `false` into `true`, allowing us to detect duplicates directly.
+- No index or frequency information is required for this problem.
+- We can return immediately when a duplicate is found.
 
 ---
 

@@ -6,11 +6,9 @@ class Solution {
         Set<Integer> set = new HashSet<>();
 
         for (int value : nums) {
-            if (set.contains(value)) {
+            if (!set.add(value)) {
                 return true;
             }
-
-            set.add(value);
         }
 
         return false;
